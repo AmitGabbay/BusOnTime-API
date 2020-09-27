@@ -7,9 +7,12 @@ from BusOnTime import ma, db
 
 
 Base = automap_base()
-with app.app_context():
-    Base.prepare(db.engine, reflect=True)
+Base.prepare(db.engine, reflect=True)
 Trip_model = Base.classes.trips
+
+# old init pattern:
+# with app.app_context():
+#     Base.prepare(db.engine, reflect=True)
 
 
 class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
