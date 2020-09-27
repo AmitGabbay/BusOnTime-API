@@ -1,20 +1,10 @@
-from flask import request#, current_app as app
+from flask import request, current_app as app
 from flask_restful import Resource
 from sqlalchemy.ext.automap import automap_base
 from datetime import date
 
-from data_tools import ma, db
+from BusOnTime import ma, db
 
-
-
-# def init_mapping():
-#     Base = automap_base()
-#     Base.prepare(db.engine, reflect=True)
-#     global Trip_model
-#     Trip_model = Base.classes.trips
-
-
-from app_test import app
 
 Base = automap_base()
 with app.app_context():
@@ -22,7 +12,7 @@ with app.app_context():
 Trip_model = Base.classes.trips
 
 
-class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema to return all fields
+class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
     class Meta:
         model = Trip_model
         load_instance = True
