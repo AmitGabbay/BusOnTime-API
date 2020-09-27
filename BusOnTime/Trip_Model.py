@@ -50,3 +50,15 @@ class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to re
 
 
 trips_schema = TripSchema(many=True)
+
+
+class TripSchema2(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
+    class Meta:
+        model = Trip_Model
+        load_instance = True
+
+    route_short_name = ma.auto_field()
+
+
+trips_schema2 = TripSchema2(many=True)
+

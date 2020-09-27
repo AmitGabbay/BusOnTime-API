@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
+from flask_cors import CORS
 
 
 db = SQLAlchemy()
@@ -13,14 +14,17 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    CORS(app)
 
     db.init_app(app)
     ma.init_app(app)
 
     with app.app_context():  # Necessary for trip model loading via SQLAlchemy
         from BusOnTime.Trip import Trip
+        from BusOnTime.Lines import Lines
 
     api.add_resource(Trip, '/trips')
+    api.add_resource(Lines, '/lines')
 
     @app.route('/')
     def hello_world():
