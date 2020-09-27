@@ -21,10 +21,11 @@ def create_app():
 
     with app.app_context():  # Necessary for trip model loading via SQLAlchemy
         from BusOnTime.Trip import Trip
-        from BusOnTime.Lines import Lines
+        from BusOnTime.Lines import Lines, RoutesMkt
 
     api.add_resource(Trip, '/trips')
     api.add_resource(Lines, '/lines')
+    api.add_resource(RoutesMkt, '/routes_mkt')
 
     @app.route('/')
     def hello_world():
