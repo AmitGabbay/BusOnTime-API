@@ -17,7 +17,7 @@ def create_app():
     db.init_app(app)
     ma.init_app(app)
 
-    with app.app_context():
+    with app.app_context():  # Necessary for trip model loading via SQLAlchemy
         from BusOnTime.Trip import Trip
 
     api.add_resource(Trip, '/trips')
