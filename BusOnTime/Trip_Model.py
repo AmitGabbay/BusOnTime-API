@@ -61,4 +61,3 @@ class TripSchema2(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to r
 
 
 trips_schema2 = TripSchema2(many=True)
-
