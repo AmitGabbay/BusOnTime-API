@@ -8,16 +8,15 @@ from datetime import date
 from BusOnTime import db
 from BusOnTime.Trip_Model import Trip_Model, trips_schema  # , trips_schema2
 
-
 routeID_cond = "Trip_Model.route_id == route_id"
 date_cond = "Trip_Model.file_date == date.fromisoformat(date_str)"
 oper_cond = "Trip_Model.agency_id == operator"
 line_cond = "Trip_Model.route_short_name == line_num"
 mkt_cond = "Trip_Model.route_mkt == mkt"
+direction_cond = "Trip_Model.route_direction == direction"
 
 
 def get_arguments(request_args, *args):
-
     arguments = [request_args['operator'], request_args['date']]
 
     if "line" in args:
@@ -38,20 +37,29 @@ def get_arguments(request_args, *args):
 class Trip(Resource):
 
     def get(self):
-
-        # noinspection PyUnusedLocal
-        route_id, date_str = request.args.values()
+        operator, date_str, line_num, mkt, direction\
+            = get_arguments(request.args, "line", "mkt", "direction")
 
         '''
         # code for unordered query string treatment
         route_id = request.args['routeID']
         date_str = request.args['date']
+        line_num = request.args['line']
+        mkt = request.args.get('mkt')
+        direction = request.args.get('direction')
         '''
-        # trips = Trip.query.filter(route_id == route_id).all() // not working :(
 
-        trips = db.session.query(Trip_Model)\
-            .filter(eval(routeID_cond), eval(date_cond))\
-            .options(load_only("route_id", "file_date"))  # is the lazy load necessary?
+        conditions = [eval(date_cond), eval(oper_cond), eval(line_cond)]
+        if mkt:
+            conditions.append(eval(mkt_cond))
+        if direction:
+            conditions.append(eval(direction_cond))
+
+        cols_to_load = ["route_id", "file_date", "route_short_name", "route_mkt", "route_direction"]
+
+        trips = db.session.query(Trip_Model).filter(*conditions)\
+            .options(load_only(*cols_to_load))  # is the lazy load necessary?
+
         output = trips_schema.dump(trips)
         return {'Trips': output}
 
@@ -96,7 +104,6 @@ class RoutesMKTs(Resource):
 class Directions(Resource):
 
     def get(self):
-
         operator, date_str, line_num, mkt = get_arguments(request.args, "line", "mkt")
 
         '''
@@ -104,7 +111,7 @@ class Directions(Resource):
         operator = request.args['operator']
         date_str = request.args['date']
         line_num = request.args['line']
-        mkt = request.args['mkt']
+        mkt = request.args.get('mkt')
         '''
 
         conditions = [eval(date_cond), eval(oper_cond), eval(line_cond)]
@@ -115,3 +122,22 @@ class Directions(Resource):
         directions = db.session.query(Trip_Model.route_direction).filter(*conditions).distinct()
 
         return {'Directions': [x.route_direction for x in directions]}
+
+
+class Trip2(Resource):
+
+    def get(self):
+        # noinspection PyUnusedLocal
+        route_id, date_str = request.args.values()
+
+        '''
+        # code for unordered query string treatment
+        route_id = request.args['routeID']
+        date_str = request.args['date']
+        '''
+        # trips = Trip.query.filter(route_id == route_id).all() // not working :(
+        trips = db.session.query(Trip_Model) \
+            .filter(eval(routeID_cond), eval(date_cond)) \
+            .options(load_only("route_id", "file_date"))  # is the lazy load necessary?
+        output = trips_schema.dump(trips)
+        return {'Trips': output}
