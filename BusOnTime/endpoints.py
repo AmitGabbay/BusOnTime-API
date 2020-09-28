@@ -74,7 +74,7 @@ class Lines(Resource):
         return {'Lines': [x.route_short_name for x in lines]}
 
 
-class RoutesMkt(Resource):
+class RoutesMKTs(Resource):
 
     def get(self):
         # noinspection PyUnusedLocal
@@ -90,7 +90,7 @@ class RoutesMkt(Resource):
         routes_mkts = db.session.query(Trip_Model.route_mkt)\
             .filter(eval(date_cond), eval(oper_cond), eval(line_cond)).distinct()
 
-        return {'Routes for this line': [x.route_mkt for x in routes_mkts]}
+        return {'MKTs': [x.route_mkt for x in routes_mkts]}
 
 
 class Directions(Resource):
@@ -114,4 +114,4 @@ class Directions(Resource):
 
         directions = db.session.query(Trip_Model.route_direction).filter(*conditions).distinct()
 
-        return {'Routes for this line': [x.route_direction for x in directions]}
+        return {'Directions': [x.route_direction for x in directions]}
