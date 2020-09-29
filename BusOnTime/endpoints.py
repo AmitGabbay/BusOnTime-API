@@ -61,9 +61,12 @@ class Trips(Resource):
             conditions.append(direction_cond(params['direction']))
 
         # Query the DB
-        cols_to_load = ["route_id", "file_date", "route_short_name", "route_mkt", "route_direction"]
+        cols_to_load = ["route_id", "file_date", "route_short_name", "route_mkt",
+                        "route_direction", "planned_start_time"]
+
         trips = db.session.query(Trip_Model).filter(*conditions) \
-            .options(load_only(*cols_to_load))  # is the lazy load necessary? TODO add sorting?
+            .order_by(Trip_Model.planned_start_time) \
+            .options(load_only(*cols_to_load))  # is the lazy load necessary?
 
         # Parse results and return as json
         output = trips_schema.dump(trips)
