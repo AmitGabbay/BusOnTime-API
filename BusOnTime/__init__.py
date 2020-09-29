@@ -20,9 +20,9 @@ def create_app():
     ma.init_app(app)
 
     with app.app_context():  # Necessary for trip model loading via SQLAlchemy
-        from BusOnTime.endpoints import Trip, Lines, RoutesMKTs, Directions, Trip2
+        from BusOnTime.endpoints import Trips, Lines, RoutesMKTs, Directions, Trip2
 
-    api.add_resource(Trip, '/trips')
+    api.add_resource(Trips, '/trips')
     api.add_resource(Trip2, '/trips2')
     api.add_resource(Lines, '/lines')
     api.add_resource(RoutesMKTs, '/mkts')

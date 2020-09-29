@@ -30,7 +30,7 @@ class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to re
     route_long_name = ma.auto_field()
     route_type = ma.auto_field()  # ?
     route_mkt = ma.auto_field()  # ?
-    # route_direction = ma.auto_field()
+    route_direction = ma.auto_field()
     route_alternative = ma.auto_field()
     num_trips = ma.auto_field()
     start_stop_id = ma.auto_field()

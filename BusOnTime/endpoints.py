@@ -1,65 +1,71 @@
-from flask import request  # , current_app as app
+from typing import Dict, Optional
+
+from flask import request  # ,current_app as app
 from flask_restful import Resource
 from sqlalchemy.orm import load_only
 
-# noinspection PyUnresolvedReferences
+from werkzeug.datastructures import ImmutableMultiDict
 from datetime import date
 
 from BusOnTime import db
 from BusOnTime.Trip_Model import Trip_Model, trips_schema  # , trips_schema2
 
-routeID_cond = "Trip_Model.route_id == route_id"
-date_cond = "Trip_Model.file_date == date.fromisoformat(date_str)"
-oper_cond = "Trip_Model.agency_id == operator"
-line_cond = "Trip_Model.route_short_name == line_num"
-mkt_cond = "Trip_Model.route_mkt == mkt"
-direction_cond = "Trip_Model.route_direction == direction"
+
+def get_arguments(request_args: ImmutableMultiDict, *args: str) -> Dict[str, Optional[str]]:
+
+    error_cond = ('operator' not in request_args)\
+                 or ('date' not in request_args)\
+                 or ('line' in args and 'line' not in request_args)
+
+    if error_cond:
+        raise KeyError("Missing required query string params")
+
+    params = {arg: request_args.get(arg) for arg in args}
+    return params
 
 
-def get_arguments(request_args, *args):
-    arguments = [request_args['operator'], request_args['date']]
-
-    if "line" in args:
-        line = request_args['line']
-        arguments.append(line)
-
-    if "mkt" in args:
-        mkt = request_args.get('mkt')
-        arguments.append(mkt)
-
-    if "direction" in args:
-        direction = request_args.get('direction')
-        arguments.append(direction)
-
-    return arguments
+def date_cond(requested_date: str) -> bool:
+    return Trip_Model.file_date == date.fromisoformat(requested_date)
 
 
-class Trip(Resource):
+def oper_cond(requested_oper: str) -> bool:
+    return Trip_Model.agency_id == requested_oper
+
+
+def line_cond(requested_line: str) -> bool:
+    return Trip_Model.route_short_name == requested_line
+
+
+def mkt_cond(requested_mkt: str) -> bool:
+    return Trip_Model.route_mkt == requested_mkt
+
+
+def direction_cond(requested_direction: str) -> bool:
+    return Trip_Model.route_direction == requested_direction
+
+
+class Trips(Resource):
 
     def get(self):
-        operator, date_str, line_num, mkt, direction\
-            = get_arguments(request.args, "line", "mkt", "direction")
 
-        '''
-        # code for unordered query string treatment
-        route_id = request.args['routeID']
-        date_str = request.args['date']
-        line_num = request.args['line']
-        mkt = request.args.get('mkt')
-        direction = request.args.get('direction')
-        '''
+        # Get params and conditions to filter the DB with:
+        params = get_arguments(request.args, "operator", "date", "line", "mkt", "direction")
 
-        conditions = [eval(date_cond), eval(oper_cond), eval(line_cond)]
-        if mkt:
-            conditions.append(eval(mkt_cond))
-        if direction:
-            conditions.append(eval(direction_cond))
+        conditions = [oper_cond(params['operator']), date_cond(params['date']), line_cond(params['line'])]
 
+        if params['mkt']:
+            conditions.append(mkt_cond(params['mkt']))
+
+        direction_ignore_terms = [None, 'all']
+        if params['direction'] not in direction_ignore_terms:
+            conditions.append(direction_cond(params['direction']))
+
+        # Query the DB
         cols_to_load = ["route_id", "file_date", "route_short_name", "route_mkt", "route_direction"]
+        trips = db.session.query(Trip_Model).filter(*conditions) \
+            .options(load_only(*cols_to_load))  # is the lazy load necessary? TODO add sorting?
 
-        trips = db.session.query(Trip_Model).filter(*conditions)\
-            .options(load_only(*cols_to_load))  # is the lazy load necessary?
-
+        # Parse results and return as json
         output = trips_schema.dump(trips)
         return {'Trips': output}
 
@@ -67,67 +73,48 @@ class Trip(Resource):
 class Lines(Resource):
 
     def get(self):
-        # noinspection PyUnusedLocal
-        operator, date_str = request.args.values()
 
-        '''
-        # code for unordered query string treatment
-        operator = request.args['operator']
-        date_str = request.args['date']
-        '''
+        # Get params and conditions to filter the DB with:
+        params = get_arguments(request.args, "operator", "date")
+        conditions = [oper_cond(params['operator']), date_cond(params['date'])]
 
-        lines = db.session.query(Trip_Model.route_short_name)\
-            .filter(eval(date_cond), eval(oper_cond)).distinct()
-
+        # Query the DB and return the results as json
+        lines = db.session.query(Trip_Model.route_short_name).filter(*conditions).distinct()
         return {'Lines': [x.route_short_name for x in lines]}
 
 
 class RoutesMKTs(Resource):
 
     def get(self):
-        # noinspection PyUnusedLocal
-        operator, date_str, line_num = request.args.values()
+        # Get params and conditions to filter the DB with:
+        params = get_arguments(request.args, "operator", "date", "line")
+        conditions = [oper_cond(params['operator']), date_cond(params['date']), line_cond(params['line'])]
 
-        '''
-        # code for unordered query string treatment
-        operator = request.args['operator']
-        date_str = request.args['date']
-        line_num = request.args['line']
-        '''
-
-        routes_mkts = db.session.query(Trip_Model.route_mkt)\
-            .filter(eval(date_cond), eval(oper_cond), eval(line_cond)).distinct()
-
+        # Query the DB and return the results as json
+        routes_mkts = db.session.query(Trip_Model.route_mkt).filter(*conditions).distinct()
         return {'MKTs': [x.route_mkt for x in routes_mkts]}
 
 
 class Directions(Resource):
 
     def get(self):
-        operator, date_str, line_num, mkt = get_arguments(request.args, "line", "mkt")
+        # Get params and conditions to filter the DB with:
+        params = get_arguments(request.args, "operator", "date", "line", "mkt")
+        conditions = [oper_cond(params['operator']), date_cond(params['date']), line_cond(params['line'])]
 
-        '''
-        # code for unordered query string treatment
-        operator = request.args['operator']
-        date_str = request.args['date']
-        line_num = request.args['line']
-        mkt = request.args.get('mkt')
-        '''
+        if params['mkt']:
+            conditions.append(mkt_cond(params['mkt']))
 
-        conditions = [eval(date_cond), eval(oper_cond), eval(line_cond)]
-
-        if mkt:
-            conditions.append(eval(mkt_cond))
-
+        # Query the DB and return the results as json
         directions = db.session.query(Trip_Model.route_direction).filter(*conditions).distinct()
-
         return {'Directions': [x.route_direction for x in directions]}
 
 
+# Old endpoint for testing
 class Trip2(Resource):
 
     def get(self):
-        # noinspection PyUnusedLocal
+
         route_id, date_str = request.args.values()
 
         '''
@@ -136,8 +123,11 @@ class Trip2(Resource):
         date_str = request.args['date']
         '''
         # trips = Trip.query.filter(route_id == route_id).all() // not working :(
-        trips = db.session.query(Trip_Model) \
-            .filter(eval(routeID_cond), eval(date_cond)) \
+
+        cond1 = Trip_Model.route_id == route_id
+        cond2 = Trip_Model.file_date == date.fromisoformat(date_str)
+
+        trips = db.session.query(Trip_Model).filter(cond1, cond2)\
             .options(load_only("route_id", "file_date"))  # is the lazy load necessary?
         output = trips_schema.dump(trips)
         return {'Trips': output}
