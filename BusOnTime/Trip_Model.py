@@ -53,7 +53,7 @@ class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to re
 trips_schema = TripSchema(many=True)
 
 
-class StatsSchema1(ma.SQLAlchemySchema):
+class StatsSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Trip_Model
         load_instance = True
@@ -63,7 +63,7 @@ class StatsSchema1(ma.SQLAlchemySchema):
     cluster_id = ma.auto_field()
 
 
-stats_schema1 = StatsSchema1(many=True)
+stats_schema = StatsSchema(many=True)
 
 
 class TripSchema2(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
