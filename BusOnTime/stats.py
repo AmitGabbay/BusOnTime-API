@@ -111,4 +111,4 @@ class DelayDistribution(Resource):
 
         # Parse results and return as json
         output = stats_schema.dump(performance_measures)
-        return {'Performance': output}
+        return {'Distribution': output}
