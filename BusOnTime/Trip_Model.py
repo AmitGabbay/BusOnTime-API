@@ -1,4 +1,5 @@
 from sqlalchemy.ext.automap import automap_base
+from marshmallow import fields
 
 from BusOnTime import ma, db
 
@@ -50,6 +51,19 @@ class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to re
 
 
 trips_schema = TripSchema(many=True)
+
+
+class StatsSchema1(ma.SQLAlchemySchema):
+    class Meta:
+        model = Trip_Model
+        load_instance = True
+
+    agency_id = ma.auto_field()
+    performance = fields.Float()
+    cluster_id = ma.auto_field()
+
+
+stats_schema1 = StatsSchema1(many=True)
 
 
 class TripSchema2(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields

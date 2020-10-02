@@ -1,11 +1,10 @@
 from typing import Dict, Optional
+from datetime import date
 
 from flask import request  # ,current_app as app
 from flask_restful import Resource
 from sqlalchemy.orm import load_only
-
 from werkzeug.datastructures import ImmutableMultiDict
-from datetime import date
 
 from BusOnTime import db
 from BusOnTime.Trip_Model import Trip_Model, trips_schema  # , trips_schema2
@@ -83,7 +82,8 @@ class Lines(Resource):
 
         # Query the DB and return the results as json
         lines = db.session.query(Trip_Model.route_short_name).filter(*conditions).distinct()
-        return {'Lines': [x.route_short_name for x in lines]}
+        lines_list = [x.route_short_name for x in lines]
+        return {'Lines': sorted(lines_list)}
 
 
 class RoutesMKTs(Resource):
