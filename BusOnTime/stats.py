@@ -89,3 +89,26 @@ class StatsByLine(Resource):
         # Parse results and return as json
         output = stats_schema.dump(performance_measures)
         return {'Performance': output}
+
+
+class DelayDistribution(Resource):
+
+    def get(self):
+
+        params = get_arguments(request.args, "oper")
+
+        if params['oper'] in [None, 'all']:
+            oper_filter = True  # Ignore filtering by sending 'True' as condition)
+        else:
+            oper_filter = oper_cond(params['oper'])
+
+        # Query the DB
+        performance_measures = db.session.query(Trip_Model.departure_delay) \
+            .add_columns(func.count(Trip_Model.departure_delay).label("count")) \
+            .filter(oper_filter) \
+            .group_by(Trip_Model.departure_delay) \
+            .order_by(desc("count"))
+
+        # Parse results and return as json
+        output = stats_schema.dump(performance_measures)
+        return {'Performance': output}

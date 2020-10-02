@@ -21,7 +21,7 @@ def create_app():
 
     with app.app_context():  # Necessary for trip model loading via SQLAlchemy
         from BusOnTime.endpoints import Trips, Lines, RoutesMKTs, Directions, Trip2
-        from BusOnTime.stats import GeneralStats, StatsByLine
+        from BusOnTime.stats import GeneralStats, StatsByLine, DelayDistribution
 
     api.add_resource(Trips, '/trips')
     api.add_resource(Trip2, '/trips2')
@@ -30,6 +30,7 @@ def create_app():
     api.add_resource(Directions, '/directions')
     api.add_resource(GeneralStats, '/stats/main/')
     api.add_resource(StatsByLine, '/stats/byLine/')
+    api.add_resource(DelayDistribution, '/stats/delays/')
 
     @app.route('/')
     def hello_world():
