@@ -64,7 +64,7 @@ class StatsByLine(Resource):
         if params['cluster'] not in ignore_terms:
             conditions.append(cluster_cond(params['cluster']))
 
-        if params['ignoreRareTrips'] in ['false']:
+        if params['ignoreRareTrips'] not in ['false']:
             conditions.append(Trip_Model.num_trips >= 15)
 
         if params['desc'] not in ['false']:
