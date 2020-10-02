@@ -104,10 +104,10 @@ class DelayDistribution(Resource):
 
         # Query the DB
         performance_measures = db.session.query(Trip_Model.departure_delay) \
-            .add_columns(func.count(Trip_Model.departure_delay).label("count")) \
+            .add_columns(func.count(Trip_Model.departure_delay).label("count1")) \
             .filter(oper_filter) \
             .group_by(Trip_Model.departure_delay) \
-            .order_by(desc("count"))
+            .order_by(desc("count1"))
 
         # Parse results and return as json
         output = stats_schema.dump(performance_measures)

@@ -58,14 +58,14 @@ class StatsSchema(ma.SQLAlchemySchema):
         model = Trip_Model
         load_instance = True
 
+    performance = fields.Float()
+    count1 = fields.Integer()
     agency_id = ma.auto_field()
     cluster_id = ma.auto_field()
     route_short_name = ma.auto_field()
     route_mkt = ma.auto_field()
     route_long_name = ma.auto_field()
     departure_delay = ma.auto_field()
-    performance = fields.Float()
-    count = fields.Integer()
 
 
 stats_schema = StatsSchema(many=True)
