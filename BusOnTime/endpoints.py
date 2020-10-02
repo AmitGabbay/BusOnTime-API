@@ -7,8 +7,8 @@ from sqlalchemy.orm import load_only
 from werkzeug.datastructures import ImmutableMultiDict
 
 from BusOnTime import db
-from BusOnTime.Trip_Model import Trip_Model, trips_schema  # , trips_schema2
-from BusOnTime.conditions import *
+from BusOnTime.Trip_Model import Trip_Model, trips_schema
+from BusOnTime.conditions import date_cond, oper_cond, mkt_cond, direction_cond, line_cond
 
 
 def get_arguments(request_args: ImmutableMultiDict, *args: str) -> Dict[str, Optional[str]]:

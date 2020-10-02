@@ -61,17 +61,10 @@ class StatsSchema(ma.SQLAlchemySchema):
     agency_id = ma.auto_field()
     performance = fields.Float()
     cluster_id = ma.auto_field()
+    route_short_name = ma.auto_field()
+    route_mkt = ma.auto_field()
+    route_long_name = ma.auto_field()
 
 
 stats_schema = StatsSchema(many=True)
 
-
-class TripSchema2(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
-    class Meta:
-        model = Trip_Model
-        load_instance = True
-
-    route_short_name = ma.auto_field()
-
-
-trips_schema2 = TripSchema2(many=True)
