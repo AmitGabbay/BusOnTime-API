@@ -76,7 +76,7 @@ class StatsByLine(Resource):
             filters = conditions
 
         # Query the DB
-        select_cols = [Trip_Model.agency_id, Trip_Model.route_short_name,
+        select_cols = [Trip_Model.agency_id, Trip_Model.cluster_id, Trip_Model.route_short_name,
                        Trip_Model.route_mkt, Trip_Model.route_long_name]
 
         performance_measures = db.session.query(*select_cols) \
