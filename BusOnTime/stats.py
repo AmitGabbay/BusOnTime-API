@@ -10,7 +10,7 @@ from sqlalchemy import desc
 from werkzeug.datastructures import ImmutableMultiDict
 
 from BusOnTime import db
-from BusOnTime.Trip_Model import Trip_Model, stats_schema
+from BusOnTime.trip_model import Trip_Model, stats_schema
 from BusOnTime.conditions import date_cond, oper_cond, line_cond, cluster_cond
 
 

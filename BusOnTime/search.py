@@ -7,7 +7,7 @@ from sqlalchemy.orm import load_only
 from werkzeug.datastructures import ImmutableMultiDict
 
 from BusOnTime import db
-from BusOnTime.Trip_Model import Trip_Model, trips_schema
+from BusOnTime.trip_model import Trip_Model, trips_schema
 from BusOnTime.conditions import date_cond, oper_cond, mkt_cond, direction_cond, line_cond
 
 

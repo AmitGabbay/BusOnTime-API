@@ -1,4 +1,4 @@
-from BusOnTime.Trip_Model import Trip_Model
+from BusOnTime.trip_model import Trip_Model
 from datetime import date
 
 
