@@ -4,7 +4,8 @@ from datetime import date
 from flask import request  # ,current_app as app
 from flask_restful import Resource
 from sqlalchemy.sql import func
-from sqlalchemy import desc
+from sqlalchemy import desc, cast
+from sqlalchemy import Integer
 
 
 from werkzeug.datastructures import ImmutableMultiDict
@@ -35,7 +36,7 @@ class GeneralStats(Resource):
             measure_type = Trip_Model.cluster_id
 
         performance_measures = db.session.query(measure_type)\
-            .add_columns(func.avg(Trip_Model.departure_delay.in_(range(0, 6))).label("performance"))\
+            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance"))\
             .filter(date_filter)\
             .group_by(measure_type).order_by(desc("performance"))
 
@@ -80,7 +81,7 @@ class StatsByLine(Resource):
                        Trip_Model.route_mkt, Trip_Model.route_long_name]
 
         performance_measures = db.session.query(*select_cols) \
-            .add_columns(func.avg(Trip_Model.departure_delay.in_(range(0, 6))).label("performance")) \
+            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
             .filter(*filters) \
             .group_by(Trip_Model.route_mkt)\
             .order_by(performance_sort_order)\
