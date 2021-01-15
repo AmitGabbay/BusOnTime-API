@@ -7,11 +7,10 @@ from sqlalchemy.sql import func
 from sqlalchemy import desc, cast
 from sqlalchemy import Integer
 
-
 from werkzeug.datastructures import ImmutableMultiDict
 
 from BusOnTime import db
-from BusOnTime.trip_model import Trip_Model, stats_schema
+from BusOnTime.trip_model import Trip_Model, stats_schema, MKT_Model
 from BusOnTime.conditions import date_cond, oper_cond, line_cond, cluster_cond
 
 
@@ -35,9 +34,9 @@ class GeneralStats(Resource):
         else:
             measure_type = Trip_Model.cluster_id
 
-        performance_measures = db.session.query(measure_type)\
-            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance"))\
-            .filter(date_filter)\
+        performance_measures = db.session.query(measure_type) \
+            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
+            .filter(date_filter) \
             .group_by(measure_type).order_by(desc("performance"))
 
         # Parse results and return as json
@@ -76,16 +75,34 @@ class StatsByLine(Resource):
         if conditions:
             filters = conditions
 
-        # Query the DB
-        select_cols = [Trip_Model.agency_id, Trip_Model.cluster_id, Trip_Model.route_short_name,
-                       Trip_Model.route_mkt, Trip_Model.route_long_name]
+        # # Query the DB
+        # select_cols = [Trip_Model.agency_id, Trip_Model.cluster_id, Trip_Model.route_short_name,
+        #                Trip_Model.route_mkt, Trip_Model.route_long_name]
+        #
+        # performance_measures = db.session.query(*select_cols) \
+        #     .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
+        #     .filter(*filters) \
+        #     .group_by(Trip_Model.route_mkt)\
+        #     .order_by(performance_sort_order)\
+        #     .limit(50)
 
-        performance_measures = db.session.query(*select_cols) \
+        # Query the DB2
+        agg_data = db.session.query(Trip_Model.route_mkt) \
             .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
             .filter(*filters) \
-            .group_by(Trip_Model.route_mkt)\
-            .order_by(performance_sort_order)\
-            .limit(50)
+            .group_by(Trip_Model.route_mkt) \
+            .subquery()
+
+        select_cols = [MKT_Model.agency_id, MKT_Model.cluster_id, MKT_Model.route_short_name,
+                       MKT_Model.route_mkt, MKT_Model.route_long_name]
+
+        performance_measures = db.session.query(*select_cols) \
+            .add_columns(agg_data.c.performance) \
+            .join(agg_data, agg_data.c.route_mkt == MKT_Model.route_mkt) \
+            .order_by(performance_sort_order, MKT_Model.route_mkt)  # \
+            # .limit(900)
+
+        # print(str(performance_measures)) #debugging
 
         # Parse results and return as json
         output = stats_schema.dump(performance_measures)

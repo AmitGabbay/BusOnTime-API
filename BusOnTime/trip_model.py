@@ -8,9 +8,19 @@ Base = automap_base()
 Base.prepare(db.engine, reflect=True)
 Trip_Model = Base.classes.trips
 
+MKT_Model = Base.classes.mkts_info
+
 # old init pattern:
 # with app.app_context():
 #     Base.prepare(db.engine, reflect=True)
+
+
+class MKTSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = MKT_Model
+        load_instance = True
+
+# trips_schema = TripSchema(many=True)
 
 
 class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
@@ -69,4 +79,3 @@ class StatsSchema(ma.SQLAlchemySchema):
 
 
 stats_schema = StatsSchema(many=True)
-
