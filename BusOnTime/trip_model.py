@@ -6,8 +6,8 @@ from BusOnTime import ma, db
 
 Base = automap_base()
 Base.prepare(db.engine, reflect=True)
-Trip_Model = Base.classes.trips
 
+Trip_Model = Base.classes.trips
 MKT_Model = Base.classes.mkts_info
 
 # old init pattern:
@@ -15,13 +15,14 @@ MKT_Model = Base.classes.mkts_info
 #     Base.prepare(db.engine, reflect=True)
 
 
-class MKTSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = MKT_Model
-        load_instance = True
+# ---Mkts table schema, not in use, stats schema currently satisfies the needs---
+# class MKTSchema(ma.SQLAlchemyAutoSchema):
+#     class Meta:
+#         model = MKT_Model
+#         load_instance = True
 
-# trips_schema = TripSchema(many=True)
-
+# mkts_schema = MKTSchema(many=True)
+# ------------------------------------------------------------------------
 
 class TripSchema(ma.SQLAlchemySchema):  # use SQLAlchemyAutoSchema instead to return all fields
     class Meta:

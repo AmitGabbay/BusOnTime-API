@@ -75,7 +75,7 @@ class StatsByLine(Resource):
         if conditions:
             filters = conditions
 
-        # # Query the DB
+        # # Query the DB - old version, unsupported due to groupby SQL rules violation (Worked on SQLite)
         # select_cols = [Trip_Model.agency_id, Trip_Model.cluster_id, Trip_Model.route_short_name,
         #                Trip_Model.route_mkt, Trip_Model.route_long_name]
         #
@@ -86,7 +86,7 @@ class StatsByLine(Resource):
         #     .order_by(performance_sort_order)\
         #     .limit(50)
 
-        # Query the DB2
+        # Query the DB - New version - using mkts_info table
         agg_data = db.session.query(Trip_Model.route_mkt) \
             .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
             .filter(*filters) \
@@ -100,7 +100,7 @@ class StatsByLine(Resource):
             .add_columns(agg_data.c.performance) \
             .join(agg_data, agg_data.c.route_mkt == MKT_Model.route_mkt) \
             .order_by(performance_sort_order, MKT_Model.route_mkt)  # \
-            # .limit(900)
+          # .limit(900)
 
         # print(str(performance_measures)) #debugging
 
