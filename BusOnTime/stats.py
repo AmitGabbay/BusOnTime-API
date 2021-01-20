@@ -35,9 +35,12 @@ class GeneralStats(Resource):
             measure_type = Trip_Model.cluster_id
 
         performance_measures = db.session.query(measure_type) \
-            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
+            .add_columns(func.avg(func.iif(Trip_Model.departure_delay.in_(range(0, 6)), 1.0, 0)).label("performance")) \
             .filter(date_filter) \
             .group_by(measure_type).order_by(desc("performance"))
+
+        # For Postgres - add column
+        #     .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
 
         # Parse results and return as json
         output = stats_schema.dump(performance_measures)
@@ -75,23 +78,15 @@ class StatsByLine(Resource):
         if conditions:
             filters = conditions
 
-        # # Query the DB - old version, unsupported due to groupby SQL rules violation (Worked on SQLite)
-        # select_cols = [Trip_Model.agency_id, Trip_Model.cluster_id, Trip_Model.route_short_name,
-        #                Trip_Model.route_mkt, Trip_Model.route_long_name]
-        #
-        # performance_measures = db.session.query(*select_cols) \
-        #     .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
-        #     .filter(*filters) \
-        #     .group_by(Trip_Model.route_mkt)\
-        #     .order_by(performance_sort_order)\
-        #     .limit(50)
-
         # Query the DB - New version - using mkts_info table
         agg_data = db.session.query(Trip_Model.route_mkt) \
-            .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
+            .add_columns(func.avg(func.iif(Trip_Model.departure_delay.in_(range(0, 6)), 1.0, 0)).label("performance")) \
             .filter(*filters) \
             .group_by(Trip_Model.route_mkt) \
             .subquery()
+
+        # For Postgres - add column
+        #     .add_columns(func.avg(cast(Trip_Model.departure_delay.in_(range(0, 6)), Integer)).label("performance")) \
 
         select_cols = [MKT_Model.agency_id, MKT_Model.cluster_id, MKT_Model.route_short_name,
                        MKT_Model.route_mkt, MKT_Model.route_long_name]

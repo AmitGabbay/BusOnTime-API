@@ -45,8 +45,8 @@ class Trips(Resource):
                         "route_direction", "planned_start_time"]
 
         trips = db.session.query(Trip_Model).filter(*conditions) \
-            .order_by(Trip_Model.planned_start_time) \
-            .options(load_only(*cols_to_load))  # is the lazy load necessary?
+            .order_by(Trip_Model.planned_start_time) #\
+            #.options(load_only(*cols_to_load))  # is the lazy load necessary?
 
         # Parse results and return as json
         output = trips_schema.dump(trips)
