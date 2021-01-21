@@ -18,8 +18,8 @@ def create_app():
     params = parse.quote_plus(conn)
     conn_str = 'mssql+pyodbc:///?odbc_connect={}'.format(params)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = conn_str
-    #app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    #app.config['SQLALCHEMY_DATABASE_URI'] = conn_str
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data_small.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     CORS(app)
