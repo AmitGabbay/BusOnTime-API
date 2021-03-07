@@ -1,4 +1,5 @@
 import os
+import pyodbc
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -14,6 +15,7 @@ api = Api()
 def create_app():
     app = Flask(__name__)
 
+    pyodbc.pooling = False
     conn = os.environ['DATABASE_CONN_STR']
     params = parse.quote_plus(conn)
     conn_str = 'mssql+pyodbc:///?odbc_connect={}'.format(params)
