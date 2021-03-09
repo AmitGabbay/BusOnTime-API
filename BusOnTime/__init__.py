@@ -49,8 +49,8 @@ def create_app():
     api.add_resource(DelayDistribution, '/stats/delays/')
 
     @app.route('/')
-    def hello_world():
-        return 'Hello World!'
+    def hello():
+        return 'BusOnTime API'
 
     api.init_app(app)  # This init must be placed after resources additions
 
