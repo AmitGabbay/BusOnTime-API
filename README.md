@@ -30,7 +30,7 @@
 ## :floppy_disk: Code    
  - Data analysis and raw data - please contact me (Amit) for more details    
 - API Backend - This Repository    
-- Web app UI - Available on [this repo](https://github.com/AmitGabbay/BusOnTime-App/tree/deploy)     
+- Web app UI - Available on [this repo](https://github.com/OrLior/BusOnTime-App/tree/deploy) 
     
     
 ## :construction: Dev plan:    
